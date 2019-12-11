@@ -35,8 +35,9 @@ The module must be executed from the repository that contains 'scripts' director
 #   For more information, please refer to <http://unlicense.org/>
 
 
-import      os
-import      sys
+import os
+import subprocess
+import sys
 sys.path.insert(0, './scripts')
 import util                         # pylint: disable=wrong-import-position
 
@@ -67,18 +68,17 @@ class Main(util.MainBase):
         # Perform the specified actions.
         self.result_code = 0
         try:
-            result, remotes = commands.getstatusoutput("git remote")
+            result, remotes = subprocess.getstatusoutput("git remote")
             if int(result) == 0:
                 for remote in remotes.splitlines():
                     cmd = "git push {0} master".format(remote.strip())
                     if self.args.flg_exec:
-                        try:
-                            os.system(cmd)
-                        except OSError:
-                            pass
+                        os.system(cmd)
                     else:
                         print("Would have executed:", cmd)
-        except:                                         # pylint: disable=bare-except
+                    self.result_code = 0
+        except Exception as excp:  # pylint: disable=broad-except
+            print("Execption:", excp)
             self.result_code = 8
 
 
